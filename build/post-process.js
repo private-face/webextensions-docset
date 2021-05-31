@@ -52,7 +52,7 @@ function fixLinks(filePath, documentsFolder, dom) {
         const relativePath = getRelativePath(filePath, href, documentsFolder, true);
         const newHref = relativePath === null
             ? MDN_URL + href
-            : relativePath.replace(/(#.*)$/, '/index.html$1');
+            : relativePath.replace(/(#.*)?$/, '/index.html$1');
 
         node.setAttribute('href', newHref);
         if (relativePath === null) {
@@ -78,7 +78,7 @@ module.exports = function postProcess(filePaths, documentsFolder) {
         // todo images
 
         // remove scripts (TODO it in yari)
-        // dom.window.document.querySelectorAll('script').forEach(node => node.remove());
+        dom.window.document.querySelectorAll('script').forEach(node => node.remove());
 
         fs.writeFileSync(filePath, dom.serialize());
     });
