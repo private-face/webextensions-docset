@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "deployer"
+version = "0.1.0"
+license = "MPL-2.0"
+description = "Upload the files that Yari built"
+authors = ["MDN Devs <mdn-dev@mozilla.com>"]
+repository = "https://github.com/mdn/yari"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+click = "^7.1.2"
+boto3 = "^1.17.84"
+python-decouple = "^3.4"
+requests = {extras = ["security"], version = "^2.25.0"}
+elasticsearch-dsl = "^7.3.0"
+selectolax = "^0.2.11"
+PyGithub = "^1.55"
+unidiff = "^0.6.0"
+
+[tool.poetry.dev-dependencies]
+black = "^21.5b1"
+flake8 = "^3.9.2"
+pytest = "^6.2.4"
+
+[tool.poetry.scripts]
+deployer = "deployer.main:cli"
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+

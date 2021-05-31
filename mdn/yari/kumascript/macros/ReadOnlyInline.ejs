@@ -1,0 +1,21 @@
+<%
+var str = mdn.localString({
+    "de": "Schreibgeschützt ",
+    "fr": "Lecture seule ",
+    "ja": "読取専用 ",
+    "ru": "Только для чтения ",
+    "pt-BR": "Somente leitura ",
+    "zh-CN": "只读 ",
+    "en-US": "Read only "
+});
+
+var title = mdn.localString({
+    "de": "Dieser Wert kann nicht verändert werden.",
+    "fr": "Cette valeur ne peut pas être changée.",
+    "ru": "Это значение изменять нельзя.",
+    "pt-BR": "Este valor não pode ser alterado.",
+    "zh-CN": "该属性的值无法更改",
+    "en-US": "This value may not be changed."
+});
+%>
+<span title="<%= title %>" class="badge inline readonly"><%= str %></span>

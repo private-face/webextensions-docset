@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:private-face/yari.git
+	branch = main
+	commit = d97ff8fe12f8034410f23cd010fe549c14d41c2d
+	parent = d560aadfd57d2c1ea5cc22301173e41af2f9aee8
+	method = merge
+	cmdver = 0.4.3

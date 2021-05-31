@@ -1,0 +1,17 @@
+<%
+//    Outputs a link to an SVG element's reference page.
+//
+//    Parameters:
+//        $0  SVG element name
+
+let slug = {
+    'en-US': "Element"
+};
+
+let URL = "/" + env.locale + "/docs/Web/SVG/" + mdn.localString(slug) + "/" + $0;
+// Gather the page summary
+
+let term = $0;
+
+%>
+<a href="<%- URL %>"><code>&lt;<%= term %>&gt;</code></a>

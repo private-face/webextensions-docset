@@ -1,0 +1,50 @@
+<%
+// Inserts a link to a JS API's documentation in the JS Reference.
+// Appropriate styling is applied.
+//
+// Parameters:
+//
+//  $0 - API name
+//  $1 - name to display (optional)
+//  $2 - anchor (#xyz) (optional)
+//  $3 - If set, do not put the text in <code></code>
+//
+//  {{jsxref("Date")}}
+//  {{jsxref("Date.prototype.getNumber()")}}
+//  {{jsxref("Global_Objects/Date/getNumber", "Date.prototype.getNumber()")}}
+//
+
+const slug = 'Global_Objects';
+
+let str = $1 || $0;
+
+let URL = `/${env.locale}/docs/Web/JavaScript/Reference/`;
+let basePath = URL;
+
+let api  = $0.replace('()', '').replace('.prototype.', '.');
+
+let page = wiki.getPage(URL + $0);
+let objectPage = wiki.getPage(URL + slug + '/' + $0);
+
+if ((api.indexOf("..") === -1) && (api.indexOf(".") !== -1)) { // Handle try...catch case
+    basePath += slug + '/';
+    URL += slug + '/' + api.replace('.', '/');
+} else if (!page.slug && objectPage.slug) {
+    basePath += slug + '/';
+    URL += slug + '/' + $0;
+} else {
+    URL += web.safeDecodeURIComponent($0);
+}
+
+let anchor = $2 || '';
+if (anchor && anchor[0] != '#') {
+    anchor = "#" + anchor;
+}
+
+if (!$3) {
+  str = `<code>${str}</code>`;
+}
+
+const link = web.smartLink(URL + anchor, null, str, $0, basePath);
+
+%><%- link %>

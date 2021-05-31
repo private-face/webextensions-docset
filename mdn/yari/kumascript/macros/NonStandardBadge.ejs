@@ -1,0 +1,18 @@
+<%
+/* Inserts a badge indicating a term or API is non-standard.
+
+    Parameters:
+        $0  If specified and non-zero, a small badge is displayed.
+
+*/
+
+var titleAttrValue = mdn.localString({
+    "fr": "Cette API n'a pas été standardisée.",
+    "ja": "この API は標準化されていません。",
+    "ru": "Это API не было стандартизировано.",
+    "en-US": "This API has not been standardized."
+});
+%>
+<svg class="icon icon-nonstandard" tabindex="0">
+    <use xlink:href="/assets/badges.svg#icon-nonstandard"></use>
+</svg>

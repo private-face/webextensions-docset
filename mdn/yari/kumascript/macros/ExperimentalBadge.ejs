@@ -1,0 +1,17 @@
+<%
+//
+// Inserts a badge indicating that a term or API is experimental.
+//
+// Parameters:
+//  $0  If specified and non-zero, a "small" version of the badge is displayed.
+
+var titleAttrValue = mdn.localString({
+    "ja": "これは実験段階の API です。製品内のコードで使用しないようご注意ください。",
+    "ru": "Это экспериментальное API, которое не должно использоваться в рабочем коде.",
+    "zh-CN": "这是一个实验性的 API，请尽量不要在生产环境中使用它。",
+    "en-US": "This is an experimental API that should not be used in production code."
+});
+%>
+<svg class="icon icon-experimental" tabindex="0">
+    <use xlink:href="/assets/badges.svg#icon-experimental"></use>
+</svg>

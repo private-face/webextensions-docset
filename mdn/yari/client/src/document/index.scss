@@ -1,0 +1,199 @@
+@use "sass:math";
+
+@import "~@mdn/minimalist/sass/vars/layout";
+@import "~@mdn/minimalist/sass/vars/color-palette";
+@import "~@mdn/minimalist/sass/vars/borders";
+@import "~@mdn/minimalist/sass/vars/typography";
+
+@import "~@mdn/minimalist/sass/mixins/animation";
+@import "~@mdn/minimalist/sass/mixins/utils";
+
+@import "./molecules/breadcrumb-locale-container";
+@import "./molecules/notecards";
+@import "./molecules/localized-content-note";
+
+.main-content {
+  @media #{$mq-small-desktop-and-up} {
+    margin-top: $base-spacing;
+  }
+}
+
+.only-in-en-us {
+  span {
+    font-size: $small-font-size;
+  }
+}
+
+/* page-not-created is the preferred class name, `new` is
+   here for backwards compatibility */
+a.page-not-created,
+a.new {
+  color: $red-300;
+  cursor: not-allowed;
+}
+
+.main-page-content {
+  padding: math.div($base-spacing, 2) $base-spacing $base-spacing;
+
+  @media #{$mq-small-desktop-and-up} {
+    margin-bottom: $base-spacing * 2;
+    padding: 0 $base-spacing $base-spacing;
+  }
+
+  h1 {
+    word-break: break-word;
+  }
+
+  h2,
+  h3,
+  h4,
+  h5 {
+    margin-top: 0;
+  }
+
+  p,
+  ul,
+  ol,
+  dl {
+    @include readable-line-length();
+  }
+
+  a {
+    text-decoration: underline;
+
+    &:hover,
+    &:focus {
+      text-decoration: none;
+    }
+
+    &:active {
+      background-color: $primary-50;
+      color: $text-color-inverted;
+
+      code {
+        background-color: transparent;
+      }
+    }
+
+    &[id^="attr-"] {
+      &:link,
+      &:visited {
+        color: $neutral-100;
+        text-decoration: none;
+      }
+
+      &:hover,
+      &:focus {
+        text-decoration: underline;
+      }
+
+      &:active {
+        color: $text-color-inverted;
+      }
+    }
+  }
+
+  a.self-link {
+    font-weight: bold;
+    // font-style: italic;
+    text-decoration: none;
+    color: black;
+  }
+
+  h2,
+  h3 {
+    margin-bottom: ($base-unit * 2);
+
+    a:link,
+    a:visited {
+      color: $neutral-100;
+      text-decoration: none;
+    }
+
+    a:hover,
+    a:focus {
+      color: $neutral-100;
+      text-decoration: underline;
+    }
+
+    a:active {
+      background-color: transparent;
+    }
+  }
+
+  table {
+    margin-bottom: $base-spacing * 2;
+  }
+
+  /* readonly inline badges needs a slightly darker background color in general article content  */
+  .inline {
+    &.optional,
+    &.readonly {
+      background-color: $neutral-550;
+    }
+  }
+
+  /*
+   * top navigational elements on tutorial pages
+   * prevnext is added for backwards compatibility
+   */
+  .prevnext,
+  .prev-next {
+    @media #{$mq-tablet-and-up} {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: $base-spacing;
+    }
+
+    a.button {
+      margin-bottom: math.div($base-spacing, 2);
+      max-width: inherit;
+
+      @media #{$mq-tablet-and-up} {
+        margin-bottom: inherit;
+      }
+    }
+  }
+
+  /*
+   * multi-column layout on pages with an index such as
+   * https://developer.mozilla.org/en-US/docs/Web/API#Specifications
+  */
+  .index {
+    columns: 300px;
+
+    .icon-experimental,
+    .icon-nonstandard {
+      color: $primary-50;
+    }
+
+    .icon-deprecated {
+      color: $red-100;
+    }
+  }
+
+  iframe {
+    max-width: 100%;
+  }
+
+  iframe:not(.sample-code-frame) {
+    border: 0;
+  }
+}
+
+/*
+ * style for archived content banner
+ * http://localhost:3000/en-us/docs/BrowserID/Specify_an_Email_Address
+ */
+.archived {
+  background-color: $yellow-400;
+  padding: math.div($base-spacing, 4);
+  position: fixed;
+  text-align: center;
+  top: 0;
+  width: 100%;
+
+  p {
+    margin: 0;
+  }
+}

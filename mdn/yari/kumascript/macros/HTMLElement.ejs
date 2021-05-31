@@ -1,0 +1,37 @@
+<%
+/*
+  Inserts a link to an HTML element documentation
+  Appropriate styling is applied.
+
+  Parameters:
+  $0 - Element name
+  $1 - Text to display (optional)
+  $2 - Anchor within the page (optional)
+*/
+let elementName = $0.toString().toLowerCase();
+let linkText = ($1 || elementName);
+switch (env.locale) {
+    case 'ja':
+        if (elementName === linkText && elementName.indexOf(" 要素") !== -1){
+            elementName = linkText.replace(" 要素","");
+        }
+        break;
+    default: break;
+}
+
+let sectionName = mdn.localString({
+    "es": "Elemento",
+    "en-US": "Element"
+});
+let url = "/" + env.locale + "/docs/Web/HTML/" + sectionName + "/" +
+    elementName;
+
+// Add anchor after fetching the page contents
+url += $2;
+
+if (linkText === elementName && elementName.indexOf(" ") === -1) {
+    linkText = "<code>&lt;" + linkText + "&gt;</code>";
+}
+
+let link = "<a href=\"" + url + "\">" + linkText + "</a>";
+%><%- link %>

@@ -1,0 +1,71 @@
+name: NPM Publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          # Needs to be a bit more than 1 otherwise it might fail to push
+          # a new tag.
+          # With `fetch-depth: 1` which is the default you might get
+          # [remote rejected]   v0.x.x -> v0.x.y (shallow update not allowed)
+          # in the GitHub Action.
+          # So not sure what the number is but let's try something beyond 1.
+          fetch-depth: 10
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: "12"
+
+      - name: Cache node_modules
+        uses: actions/cache@v2.1.6
+        id: cached-node_modules
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      - name: Install all yarn packages
+        if: steps.cached-node_modules.outputs.cache-hit != 'true'
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 1
+        run: yarn --frozen-lockfile
+
+      - name: Build the build
+        env:
+          # What this does is it makes sure the built client is made for
+          # doing CRUD work (e.g. previewing, toolbar, flaws UI, etc)
+          REACT_APP_CRUD_MODE: true
+
+          # This makes sure the auth is disabled. I.e. the "Sign in" link
+          # in the header. It also disables any XHR checks to the server's
+          # whoami endpoint.
+          REACT_APP_DISABLE_AUTH: true
+
+          # The 'yarn prepare-build' command is going to try to build up a
+          # file for the git history so it can have an index of each files.
+          # This makes sense in most of the cases where you have a CONTENT_ROOT
+          # which you'll want to build. But the CONTENT_ROOT can't be empty
+          # so you have to set it to something. So let's (ab)use the content
+          # we use for the end-to-end testing.
+          CONTENT_ROOT: testing/content/files
+        run: |
+          yarn prepare-build
+
+      - name: Dry-run publish to see which files are included
+        run: |
+          npm publish --access public --dry-run
+
+      - name: Publish to npmjs
+        uses: mikeal/merge-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
