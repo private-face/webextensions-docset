@@ -28,8 +28,7 @@
     "test:kumascript": "jest kumascript",
     "test:testing": "cd testing && jest",
     "tool": "node tool/cli.js",
-    "watch:ssr": "cd ssr && webpack --mode=production --watch",
-    "prepare": "husky install"
+    "watch:ssr": "cd ssr && webpack --mode=production --watch"
   },
   "resolutions": {
     "@typescript-eslint/typescript-estree": ">=4.15.2",
