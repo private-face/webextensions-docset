@@ -24,14 +24,6 @@
   }
 }
 
-/* page-not-created is the preferred class name, `new` is
-   here for backwards compatibility */
-a.page-not-created,
-a.new {
-  color: $red-300;
-  cursor: not-allowed;
-}
-
 .main-page-content {
   padding: math.div($base-spacing, 2) $base-spacing $base-spacing;
 

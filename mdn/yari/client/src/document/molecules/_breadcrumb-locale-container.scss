@@ -7,7 +7,7 @@
   padding: math.div($base-spacing, 2) $base-spacing;
 
   @media #{$mq-small-desktop-and-up} {
-    margin: $base-spacing 0 0;
+    margin: 0;
   }
 
   .breadcrumbs-container {

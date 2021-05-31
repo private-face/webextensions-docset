@@ -10,7 +10,6 @@ import { Homepage } from "./homepage";
 import { Document } from "./document";
 import { A11yNav } from "./ui/molecules/a11y-nav";
 import { Footer } from "./ui/organisms/footer";
-import { Header } from "./ui/organisms/header";
 import { SiteSearch } from "./site-search";
 import { Loading } from "./ui/atoms/loading";
 import { PageContentContainer } from "./ui/atoms/page-content";
@@ -42,7 +41,6 @@ function Layout({ pageType, children }) {
        */}
       {/* {!isServer && <Banner />} */}
       <div className={`page-wrapper ${pageType}`}>
-        <Header />
         {children}
       </div>
       <Footer />
