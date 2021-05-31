@@ -70,26 +70,6 @@ const readBuildHTML = lazy(() => {
   return html;
 });
 
-const getGAScriptPathName = lazy((relPath = "/static/js/ga.js") => {
-  // Return the relative path if there exists a `BUILD_ROOT/static/js/ga.js`.
-  // If the file doesn't exist, return falsy.
-  // Remember, unless explicitly set, the BUILD_OUT_ROOT defaults to a path
-  // based on `__dirname` but that's wrong when compared as a source and as
-  // a webpack built asset. So we need to remove the `/ssr/` portion of the path.
-  let root = BUILD_OUT_ROOT;
-  if (!fs.existsSync(root)) {
-    root = root
-      .split(path.sep)
-      .filter((x) => x !== "ssr")
-      .join(path.sep);
-  }
-  const filePath = relPath.split("/").slice(1).join(path.sep);
-  if (fs.existsSync(path.join(root, filePath))) {
-    return relPath;
-  }
-  return null;
-});
-
 const getSpeedcurveJS = lazy(() => {
   return fs
     .readFileSync(
@@ -201,70 +181,18 @@ export default function render(
     }
   }
 
-  if (possibleLocales) {
-    hydrationData.possibleLocales = possibleLocales;
-  }
-
-  $("#root").after(
-    `<script type="application/json" id="hydration">${JSON.stringify(
-      hydrationData
-    )}</script>`
-  );
-
   if (pageDescription) {
     // This overrides the default description. Also assumes there's always
     // one tag there already.
     $('meta[name="description"]').attr("content", pageDescription);
-    $('meta[property="og:description"]').attr("content", pageDescription);
   }
-
-  const robotsContent =
-    ALWAYS_NO_ROBOTS || (doc && doc.noIndexing) || pageNotFound || noIndexing
-      ? "noindex, nofollow"
-      : "index, follow";
-  $(`<meta name="robots" content="${robotsContent}">`).insertAfter(
-    $("meta").eq(-1)
-  );
 
   if (!pageNotFound) {
     $('link[rel="canonical"]').attr("href", canonicalURL);
   }
 
-  if (SPEEDCURVE_LUX_ID) {
-    // The snippet is always the same, if it's present, but the ID varies
-    // See LUX settings here https://speedcurve.com/mozilla-add-ons/mdn/settings/lux/
-    const speedcurveJS = getSpeedcurveJS();
-    $("<script>").text(speedcurveJS).appendTo($("head"));
-    $(
-      `<script src="https://cdn.speedcurve.com/js/lux.js?id=${SPEEDCURVE_LUX_ID}" async defer crossorigin="anonymous"></script>`
-    ).appendTo($("head"));
-  }
-
-  // As part of the pre-build steps, in the build root, a `ga.js` file is generated.
-  // The SSR rendering needs to know if exists and if so, what it's URL pathname is.
-  // The script will do two things:
-  //  1. created a `window.ga` object
-  //  2. async inject the download of that remote
-  //     https://www.google-analytics.com/analytics.js file.
-  // With this script appearing before any other (also deferred) JS bundles,
-  // the `window.ga` will be immediately available but the remote analytics.js
-  // can come in when it comes in and it will send.
-  const gaScriptPathName = getGAScriptPathName();
-  if (gaScriptPathName) {
-    $("<script>")
-      .attr("defer", "")
-      .attr("src", gaScriptPathName)
-      .appendTo($("head"));
-  }
-
   const $title = $("title");
   $title.text(pageTitle);
-  $('meta[property="og:url"]').attr("content", canonicalURL);
-  $('meta[property="og:title"]').attr("content", pageTitle);
-  $('meta[property="og:locale"]').attr(
-    "content",
-    locale ? locale : doc ? doc.locale : "en-US"
-  );
 
   for (const webfontURL of webfontURLs) {
     $('<link rel="preload" as="font" type="font/woff2" crossorigin>')

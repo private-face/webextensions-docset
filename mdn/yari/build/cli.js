@@ -222,41 +222,6 @@ async function buildDocuments(
     progressBar.stop();
   }
 
-  const sitemapsBuilt = [];
-  for (const [locale, docs] of Object.entries(docPerLocale)) {
-    const sitemapDir = path.join(
-      BUILD_OUT_ROOT,
-      "sitemaps",
-      locale.toLowerCase()
-    );
-    fs.mkdirSync(sitemapDir, { recursive: true });
-    const sitemapFilePath = path.join(sitemapDir, "sitemap.xml.gz");
-    fs.writeFileSync(
-      sitemapFilePath,
-      zlib.gzipSync(makeSitemapXML(locale, docs))
-    );
-    sitemapsBuilt.push(sitemapFilePath);
-  }
-
-  // do we bother generating the combined sitemaps index file.
-  // That means, that if you've done this at least once, consequent runs of
-  if (CONTENT_TRANSLATED_ROOT) {
-    const sitemapIndexFilePath = path.join(BUILD_OUT_ROOT, "sitemap.xml");
-    fs.writeFileSync(
-      sitemapIndexFilePath,
-      makeSitemapIndexXML(
-        sitemapsBuilt.map((fp) => fp.replace(BUILD_OUT_ROOT, ""))
-      )
-    );
-  }
-
-  searchIndex.sort();
-  for (const [locale, items] of Object.entries(searchIndex.getItems())) {
-    fs.writeFileSync(
-      path.join(BUILD_OUT_ROOT, locale.toLowerCase(), "search-index.json"),
-      JSON.stringify(items)
-    );
-  }
   return { slugPerLocale: docPerLocale, peakHeapBytes, totalFlaws };
 }
 
