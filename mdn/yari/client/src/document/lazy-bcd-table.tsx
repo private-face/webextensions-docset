@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import useSWR from "swr";
 
 import { DisplayH2, DisplayH3 } from "./ingredients/utils";
@@ -12,10 +12,8 @@ import { Loading } from "../ui/atoms/loading";
 // the JS (and the JSON XHR fetch of course)
 import "./ingredients/browser-compatibility-table/index.scss";
 import { useLocale } from "../hooks";
-
-const BrowserCompatibilityTable = lazy(
-  () => import("./ingredients/browser-compatibility-table")
-);
+import BrowserCompatibilityTable from "./ingredients/browser-compatibility-table";
+import type bcd from "@mdn/browser-compat-data/types";
 
 const isServer = typeof window === "undefined";
 
@@ -25,18 +23,28 @@ export function LazyBrowserCompatibilityTable({
   isH3,
   query,
   dataURL,
+
+  data,
+  browsers,  
 }: {
   id: string;
   title: string;
   isH3: boolean;
   query: string;
   dataURL: string | null;
+
+  data?: bcd.Identifier;
+  browsers?: bcd.Browsers;  
 }) {
+  const locale = useLocale();
+
   return (
     <>
       {title && !isH3 && <DisplayH2 id={id} title={title} />}
       {title && isH3 && <DisplayH3 id={id} title={title} />}
-      {dataURL ? (
+      {data && browsers && locale ? (
+        <BrowserCompatibilityTable query={query} locale={locale} data={data} browsers={browsers} />
+      ) : dataURL ? (
         <LazyBrowserCompatibilityTableInner dataURL={dataURL} />
       ) : (
         <div className="notecard warning">

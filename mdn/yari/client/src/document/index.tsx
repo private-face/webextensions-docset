@@ -165,6 +165,16 @@ export function Document(props /* TODO: define a TS interface for this */) {
       )}
 
       <MainContentContainer>
+        {!isServer && CRUD_MODE && !props.isPreview && doc.isActive && (
+          <React.Suspense fallback={<Loading message={"Loading toolbar"} />}>
+            <Toolbar
+              doc={doc}
+              reloadPage={() => {
+                mutate(dataURL);
+              }}
+            />
+          </React.Suspense>
+        )}
         <article className="main-page-content" lang={doc.locale}>
           <h1>{doc.title}</h1>
           <RenderDocumentBody doc={doc} />

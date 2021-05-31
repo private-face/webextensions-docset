@@ -137,8 +137,6 @@ function extractBCDData(doc) {
         data: Object.assign({}, section.value),
       });
       section.value.dataURL = dataURL;
-      delete section.value.data;
-      delete section.value.browsers;
     }
   }
   return data;
