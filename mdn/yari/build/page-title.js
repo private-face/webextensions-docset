@@ -22,7 +22,7 @@ function getPageTitle(doc) {
       title += ` - ${parentDoc.metadata.title}`;
     }
   }
-  return `${title} | MDN`;
+  return `${title}`;
 }
 
 // When traversing up to the root document, there are certain "roots"
