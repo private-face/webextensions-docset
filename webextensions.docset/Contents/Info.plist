@@ -18,7 +18,7 @@
 	<string>dashtoc</string>
 
 	<key>dashIndexFilePath</key>
-	<string>en-us/docs/mozilla/add-ons/webextensions/index.html</string>
+	<string>en-us/docs/mozilla/add-ons/webextensions/api/index.html</string>
 
 	<key>isJavaScriptEnabled</key>
 	<false/>

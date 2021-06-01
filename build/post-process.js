@@ -70,15 +70,40 @@ function fixUrls(dom, filePath, documentsFolder) {
     return cssFiles;
 }
 
-function buildTableOfContents(dom) {
+function buildTableOfContents(dom, filePath) {
     const document = dom.window.document;
+    const isAPI = filePath.toLowerCase().includes('/api/');
+    const API_HEADERS = {
+        'properties': 'Property',
+        'methods': 'Method',
+        'types': 'Type',
+        'events': 'Event',
+        'event handlers': 'Event',
+        'interfaces': 'Interface',
+        'functions': 'Function',
+        'javascript api listing': 'Namespace',
+    };
 
-    document.querySelectorAll('h2 > a').forEach(node => {
-        const entryName = encodeURIComponent(node.textContent);
+    const createTOCEntry = (node, resourceName, entryName) => {
         const a = document.createElement('a');
-        a.name = `//apple_ref/cpp/Section/${entryName}`;
+        a.name = `//apple_ref/cpp/${resourceName}/${encodeURIComponent(entryName)}`;
         a.className = 'dashAnchor';
-        node.before(a);
+        node.prepend(a);
+    }
+
+    document.querySelectorAll('h2').forEach(node => {
+        const entryName = node.textContent.trim();
+        createTOCEntry(node, 'Section', entryName);
+
+        // we can extract more from an api page
+        const resourceName = API_HEADERS[entryName.toLowerCase()];
+        if (!isAPI || !resourceName) {
+            return;
+        }
+
+        node.nextSibling.querySelectorAll('dt').forEach(apiNode => {
+            createTOCEntry(apiNode, resourceName, apiNode.textContent.trim());
+        });
     });
 }
 
@@ -97,7 +122,7 @@ module.exports = function postProcess(filePaths, documentsFolder) {
         cssPaths = cssPaths.concat(css);
 
         // build table of contents
-        buildTableOfContents(dom);
+        buildTableOfContents(dom, filePath);
 
         fs.writeFileSync(filePath, dom.serialize());
     });
