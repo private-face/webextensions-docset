@@ -14,6 +14,12 @@
 	<key>isDashDocset</key>
 	<true/>
 
+	<key>DashDocSetFamily</key>
+	<string>dashtoc</string>
+
+	<key>dashIndexFilePath</key>
+	<string>en-us/docs/mozilla/add-ons/webextensions/index.html</string>
+
 	<key>isJavaScriptEnabled</key>
 	<false/>
 </dict>
