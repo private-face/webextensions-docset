@@ -2,6 +2,7 @@ const fs = require('fs-extra');
 const jsdom = require('jsdom');
 const path = require('path');
 const { JSDOM } = jsdom;
+const expand = require('./expand.js');
 
 const MDN_URL = 'https://developer.mozilla.org';
 
@@ -45,6 +46,7 @@ function fixUrls(dom, filePath, documentsFolder) {
 
         const isLink = node.nodeName === 'A';
         const isCSS = node.nodeName === 'LINK' && node.getAttribute('rel').toLowerCase() === 'stylesheet';
+        const isIMG = node.nodeName === 'IMG';
 
         const relativePath = getRelativePath(filePath, url, documentsFolder, true);
         const targetFileExists = relativePath !== null;
@@ -60,10 +62,13 @@ function fixUrls(dom, filePath, documentsFolder) {
             node.classList.add('external');
         }
 
-        // console.log(`${node.nodeName}: "${url}" -> "${newUrl}" ${relativePath !== null ? '(file exists)' : ''}`);
-
         if (isCSS && targetFileExists) {
             cssFiles.push(path.resolve(documentsFolder, url.slice(1)));
+        }
+
+        // while we are at it, fix images with transparent background
+        if (isIMG) {
+            node.style.backgroundColor = '#fff';
         }
     });
 
@@ -81,6 +86,7 @@ function buildTableOfContents(dom, filePath) {
         'event handlers': 'Event',
         'interfaces': 'Interface',
         'functions': 'Function',
+        'constants': 'Constant',
         'javascript api listing': 'Namespace',
     };
 
@@ -113,9 +119,10 @@ module.exports = function postProcess(filePaths, documentsFolder) {
     filePaths.forEach((filePath) => {
        const html = fs.readFileSync(filePath, 'utf8').toString();
         const dom = new JSDOM(html);
+        const document = dom.window.document;
 
         // remove scripts (TODO it in yari)
-        dom.window.document.querySelectorAll('script').forEach(node => node.remove());
+        document.querySelectorAll('script').forEach(node => node.remove());
 
         // fix URLs in all tags, containing `href` or `src`
         const css = fixUrls(dom, filePath, documentsFolder);
@@ -124,6 +131,12 @@ module.exports = function postProcess(filePaths, documentsFolder) {
         // build table of contents
         buildTableOfContents(dom, filePath);
 
+        // inject compatibility table expand script
+        const script = document.createElement('script');
+        script.textContent = `(${expand.toString()})();`;
+        document.body.append(script);
+
+        // write modified html
         fs.writeFileSync(filePath, dom.serialize());
     });
 

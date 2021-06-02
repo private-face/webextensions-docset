@@ -7,6 +7,26 @@ const execSync = require('child_process').execSync;
 const buildIndex = require('./build/build-index');
 const postProcess = require('./build/post-process');
 
+const webextensionsSubtree = 'en-us/mozilla/add-ons/webextensions';
+const docsWebextensionsSubtree = 'en-us/docs/mozilla/add-ons/webextensions';
+const mdnContentFolder = path.resolve(__dirname, 'mdn/content/files');
+const webextensionsContentFolder = path.resolve(mdnContentFolder, webextensionsSubtree);
+
+const mdnYariFolder = path.resolve(__dirname, 'mdn/yari');
+const builtPagesFolder = path.resolve(mdnYariFolder, 'client/build');
+
+const outputFolder = path.resolve(__dirname, 'webextensions.docset/Contents/Resources');
+const documentsFolder = path.resolve(outputFolder, 'Documents');
+const searchIndexFile = path.resolve(outputFolder, 'docSet.dsidx');
+const searchOptimizedIndexFile = path.resolve(outputFolder, 'optimizedIndex.dsidx');
+
+function rm(file) {
+    try {
+        fs.rmSync(file, { recursive: true });
+    } catch (o_0)
+             { }
+}
+
 function generateSQL(apiDocs) {
     const rows = buildIndex(apiDocs);
     let sql = `
@@ -31,26 +51,6 @@ function generateSQL(apiDocs) {
     return sql;
 }
 
-const webextensionsSubtree = 'en-us/mozilla/add-ons/webextensions';
-const docsWebextensionsSubtree = 'en-us/docs/mozilla/add-ons/webextensions';
-const mdnContentFolder = path.resolve(__dirname, 'mdn/content/files');
-const webextensionsContentFolder = path.resolve(mdnContentFolder, webextensionsSubtree);
-
-const mdnYariFolder = path.resolve(__dirname, 'mdn/yari');
-const builtPagesFolder = path.resolve(mdnYariFolder, 'client/build');
-
-const outputFolder = path.resolve(__dirname, 'webextensions.docset/Contents/Resources');
-const documentsFolder = path.resolve(outputFolder, 'Documents');
-const searchIndexFile = path.resolve(outputFolder, 'docSet.dsidx');
-const searchOptimizedIndexFile = path.resolve(outputFolder, 'optimizedIndex.dsidx');
-
-function rm(file) {
-    try {
-        fs.rmSync(file, { recursive: true });
-    } catch (o_0)
-             { }
-}
-
 function main() {
     const tempContentFolder = path.resolve(__dirname, 'mdn_content');
 
@@ -71,12 +71,16 @@ function main() {
     fs.copySync(path.resolve(mdnContentFolder, 'popularities.json'), path.resolve(tempContentFolder, 'popularities.json'));
     fs.copySync(webextensionsContentFolder, tempWebextensionsFolder);
 
-    // 3. Build ssr
     // 3. Build MDN pages from extracted content
     console.log('3. Building MDN docs...');
     execSync(`echo CONTENT_ROOT="${tempContentFolder}" > .env`, {
         cwd: mdnYariFolder,
-    });
+    }).toString();
+
+    execSync(`yarn prepare-build`, {
+        cwd: mdnYariFolder,
+    }).toString();
+
     execSync(`yarn build`, {
         cwd: mdnYariFolder,
     }).toString();

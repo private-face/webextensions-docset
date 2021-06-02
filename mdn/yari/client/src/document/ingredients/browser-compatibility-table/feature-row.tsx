@@ -305,7 +305,7 @@ function getNotes(
       const hasNotes = supportNotes.length > 0;
       return (
         (i === 0 || hasNotes) && (
-          <React.Fragment key={i}>
+          <div key={i}>
             <div className="bc-notes-wrapper">
               <dt
                 className={`bc-supports-${getSupportClassName(
@@ -329,7 +329,7 @@ function getNotes(
               })}
               {!hasNotes && <dd />}
             </div>
-          </React.Fragment>
+          </div>
         )
       );
     })
@@ -392,7 +392,7 @@ function CompatCell({
             <i className="ic-history" aria-hidden="true" />
           </button>
         )}
-        {showNotes && (
+        {hasNotes && (
           <dl className="bc-notes-list bc-history bc-history-mobile">
             {getNotes(browser, support!, locale)}
           </dl>

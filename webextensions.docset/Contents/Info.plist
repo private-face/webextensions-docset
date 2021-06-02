@@ -21,6 +21,6 @@
 	<string>en-us/docs/mozilla/add-ons/webextensions/api/index.html</string>
 
 	<key>isJavaScriptEnabled</key>
-	<false/>
+	<true/>
 </dict>
 </plist>
