@@ -121,9 +121,6 @@ module.exports = function postProcess(filePaths, documentsFolder) {
         const dom = new JSDOM(html);
         const document = dom.window.document;
 
-        // remove scripts (TODO it in yari)
-        document.querySelectorAll('script').forEach(node => node.remove());
-
         // fix URLs in all tags, containing `href` or `src`
         const css = fixUrls(dom, filePath, documentsFolder);
         cssPaths = cssPaths.concat(css);
