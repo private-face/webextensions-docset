@@ -30,7 +30,6 @@ module.exports = () => {
 
 		const wasExpanded = target.getAttribute('aria-expanded').toLowerCase() === 'true';
 		const isExpanded = !wasExpanded;
-		console.log('>>>>', target.getAttribute('aria-expanded').toLowerCase(), isExpanded);
 
 		collapseHistory();
 		target.setAttribute('aria-expanded', isExpanded);
