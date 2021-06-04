@@ -4,7 +4,7 @@ const fastGlob = require('fast-glob');
 const sqlite3 = require('sqlite3');
 const execSync = require('child_process').execSync;
 
-const buildIndex = require('./build/build-index');
+const { buildIndex } = require('./build/build-index');
 const postProcess = require('./build/post-process');
 
 const webextensionsSubtree = 'en-us/mozilla/add-ons/webextensions';
@@ -53,26 +53,23 @@ function generateSQL(apiDocs) {
 
 function main() {
     const tempContentFolder = path.resolve(__dirname, 'mdn_content');
+    const tempWebextensionsFolder = path.resolve(tempContentFolder, webextensionsSubtree);
 
-    // 0. Clean up the previous build (database, Documents folder)
-    console.log('0. Cleaning up...');
+    // Clean up the previous build (database, Documents folder)
+    console.log('Cleaning up...');
     rm(documentsFolder);
     rm(tempContentFolder);
     fs.mkdirSync(documentsFolder, { recursive: true});
     rm(searchIndexFile);
     rm(searchOptimizedIndexFile);
 
-    // 1. Create temp dir
-    const tempWebextensionsFolder = path.resolve(tempContentFolder, webextensionsSubtree);
-    console.log(tempContentFolder);
-
-    // 2. Copy webextension APIs to the temp dir
+    // Copy webextension APIs to the temp dir
     fs.mkdirSync(tempWebextensionsFolder, { recursive: true });
     fs.copySync(path.resolve(mdnContentFolder, 'popularities.json'), path.resolve(tempContentFolder, 'popularities.json'));
     fs.copySync(webextensionsContentFolder, tempWebextensionsFolder);
 
-    // 3. Build MDN pages from extracted content
-    console.log('3. Building MDN docs...');
+    // Build MDN pages from extracted content
+    console.log('Building MDN docs...');
     execSync(`echo CONTENT_ROOT="${tempContentFolder}" > .env`, {
         cwd: mdnYariFolder,
     }).toString();
@@ -85,17 +82,16 @@ function main() {
         cwd: mdnYariFolder,
     }).toString();
 
-    console.log('4. Copying MDN docs...');
-    // 4. Copy fixed MDN pages to Documents folder
+    // Copy fixed MDN pages to Documents folder
     fs.copySync(builtPagesFolder, documentsFolder);
 
-    // 5. Fix built MDN pages (remove scripts and fix static URLs)
-    console.log('5. Post processing...')
+    // Fix built MDN pages (remove scripts and fix static URLs)
+    console.log('Post processing...')
     const filePaths = fastGlob.sync(path.resolve(documentsFolder, docsWebextensionsSubtree, '**/index.html'));
     postProcess(filePaths, documentsFolder);
 
-    // // 6. Create database
-    console.log('6. Building index...')
+    // 6. Create database
+    console.log('Building index...')
     const apiDocs = fastGlob.sync(
         path.resolve(tempWebextensionsFolder, '**/*.html')
     );
@@ -112,7 +108,7 @@ function main() {
         });
     });
 
-    // 8. You are BREATHTAKING!
+    console.log('Done!');
 }
 
 main();

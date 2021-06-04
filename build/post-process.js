@@ -3,6 +3,7 @@ const jsdom = require('jsdom');
 const path = require('path');
 const { JSDOM } = jsdom;
 const expand = require('./expand.js');
+const { inferTypeFromName } = require('./build-index.js');
 
 const MDN_URL = 'https://developer.mozilla.org';
 
@@ -77,15 +78,15 @@ function fixUrls(dom, filePath, documentsFolder) {
 
 function buildTableOfContents(dom, filePath) {
     const document = dom.window.document;
-    const isAPI = filePath.toLowerCase().includes('/api/');
+    const isAPI = filePath.includes('/API/');
     const API_HEADERS = {
         'properties': 'Property',
         'methods': 'Method',
         'types': 'Type',
         'events': 'Event',
         'event handlers': 'Event',
-        'interfaces': 'Interface',
-        'functions': 'Function',
+        'interfaces': 'Type',
+        'functions': 'Method',
         'constants': 'Constant',
         'javascript api listing': 'Namespace',
     };
@@ -108,7 +109,10 @@ function buildTableOfContents(dom, filePath) {
         }
 
         node.nextSibling.querySelectorAll('dt').forEach(apiNode => {
-            createTOCEntry(apiNode, resourceName, apiNode.textContent.trim());
+            const text = apiNode.textContent.trim();
+            const resourceType = inferTypeFromName(text);
+            // Sometimes constants end up in a 'Propertes' section, fix that.
+            createTOCEntry(apiNode, resourceType === 'Constant' ? 'Constant' : resourceName, text);
         });
     });
 }
