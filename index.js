@@ -46,17 +46,18 @@ function generateSQL(apiDocs) {
             console.error(`Error: File "${filePath}" is inaccessible`);
             return '';
         }
-        return `INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES ('${name}', '${type}', '${dir}#<dash_entry_titleDescription=${encodeURIComponent(desc || ' ')}>');\n`;
+        return `INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES ('${name}', '${type}', '${dir}#<dash_entry_titleDescription=${encodeURIComponent(desc)}>');\n`;
     }).join('');
     return sql;
 }
 
-function main() {
+async function main() {
     const tempContentFolder = path.resolve(__dirname, 'mdn_content');
     const tempWebextensionsFolder = path.resolve(tempContentFolder, webextensionsSubtree);
 
     // Clean up the previous build (database, Documents folder)
     console.log('Cleaning up...');
+    rm(builtPagesFolder);
     rm(documentsFolder);
     rm(tempContentFolder);
     fs.mkdirSync(documentsFolder, { recursive: true});
@@ -93,27 +94,32 @@ function main() {
     const filePaths = fastGlob.sync(path.resolve(documentsFolder, docsWebextensionsSubtree, '**/index.html'));
     postProcess(filePaths, documentsFolder);
 
-    // 6. Create database
+    // Create database
     console.log('Building index...')
     const apiDocs = fastGlob.sync(
         path.resolve(tempWebextensionsFolder, '**/*.html')
     );
 
-    sqlite3.verbose();
-    const db = new sqlite3.Database(searchIndexFile);
-    db.on('error', (err) => {
-        console.error('Error:', err);
-    });
-    db.on('open', () => {
-        // 7. Populate index
-        db.exec(generateSQL(apiDocs), () => {
-            db.close();
+    await new Promise((resolve, reject) => {
+        sqlite3.verbose();
+        const db = new sqlite3.Database(searchIndexFile);
+        db.on('error', (err) => {
+            console.error('Error:', err);
+            reject(err);
+        });
+        // Populate index
+        db.on('open', () => {
+            db.exec(generateSQL(apiDocs), () => {
+                db.close();
+                resolve();
+
+            });
         });
     });
 
-    // 8. Archive
+    // Archive
     console.log('Packing...')
-    execSync(`tar --exclude='.DS_Store' -cvzf webextensions.tgz webextensions.docset`);
+    execSync(`tar --exclude='.DS_Store' -cvzf webextensions.tgz webextensions.docset`, { stdio: ['pipe', 'ignore', 'pipe'] });
 
     console.log('Done!');
 }

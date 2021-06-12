@@ -29,21 +29,11 @@ function inferTypeFromName(title) {
     return null;
 }
 
-function fixName(name, type) {
-    if (type === 'Method' && !name.endsWith('()')) {
-        name += '()';
-    }
-    if (type !== 'Method' && name.endsWith('()')) {
-        name = name.slice(0, -2);
-    }
-    return name;
-}
-
 function createAPIDocEntry({ title, slug, tags }, apiDocPath) {
     const isManifest = slug.includes('/manifest.json/');
     const isAPI = slug.includes('/API/');
     const titleParts = title.split('.');
-    const name = titleParts.pop();
+    let name = title.includes('manifest.json') ? title : titleParts.pop().trim();
     const namespace = slug.replace(/^.*\/API\//, '').split('/').slice(0, -1).join('.');
     const typeFromName = inferTypeFromName(name);
     const typesFromTags = tags.filter(tag => ACCEPTED_TAGS.has(tag));
@@ -96,10 +86,14 @@ function createAPIDocEntry({ title, slug, tags }, apiDocPath) {
             type = 'Object';
     }
 
+    const description = NO_DESCRIPTION_TYPES.has(type) ? ' ' : namespace;
 
-    const description = NO_DESCRIPTION_TYPES.has(type) ? '' : namespace;
+    // remove trailing "()"" from method names
+    if (name.endsWith('()')) {
+        name = name.slice(0, -2);
+    }
 
-    return [type, fixName(name, type), apiDocPath.replace(/.*\/(en-us)/i, '$1/docs'), description];
+    return [type, name, apiDocPath.replace(/.*\/(en-us)/i, '$1/docs'), description];
 }
 
 function buildIndex(apiDocs) {

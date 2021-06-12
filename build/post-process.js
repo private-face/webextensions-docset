@@ -79,6 +79,7 @@ function fixUrls(dom, filePath, documentsFolder) {
 function buildTableOfContents(dom, filePath) {
     const document = dom.window.document;
     const isAPI = filePath.includes('/api/');
+    const isManifest = filePath.includes('/manifest.json/');
     const API_HEADERS = {
         'properties': 'Property',
         'methods': 'Method',
@@ -99,13 +100,17 @@ function buildTableOfContents(dom, filePath) {
         node.prepend(a);
     }
 
-    document.querySelectorAll('h2, h3').forEach(node => {
+    document.querySelectorAll('h1, h2, h3').forEach(node => {
         const entryName = node.textContent.trim();
+        if (entryName.toLowerCase() === 'legend') {
+            // "Legend" section is not visible
+            return;
+        }
         createTOCEntry(node, 'Section', entryName);
 
-        // we can extract more from an api page
+        // we can extract more from an api or manifest key page
         const resourceName = API_HEADERS[entryName.toLowerCase()];
-        if (!isAPI || !resourceName) {
+        if (!isAPI && !isManifest || !resourceName) {
             return;
         }
 
@@ -114,7 +119,7 @@ function buildTableOfContents(dom, filePath) {
                 // ignore nested entries
                 return;
             }
-            const text = apiNode.textContent.trim();
+            const text = apiNode.textContent.trim().split('.').pop();
             const resourceType = inferTypeFromName(text);
             // Sometimes constants end up in a 'Propertes' section, fix that.
             createTOCEntry(apiNode, resourceType === 'Constant' ? 'Constant' : resourceName, text);
