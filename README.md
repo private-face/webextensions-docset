@@ -5,7 +5,7 @@ WebExtensions documentation set for Dash.app, based on [MDN WebExtensions](https
 Generation script can be easily adjusted to build any other documentation from MDN.
 
 ## Building
-Thanks to the fact that Mozilla open-sourced content of MDN website as well as the engine powering it, this docset doesn't require you to download anything. Everything is buit locally from sources. All necessary dependencies are already included in this repository as subtrees.
+This docset doesn't require downloading anything, documentation pages are buit locally from sources.
 
 ### Prerequisites
 * Node >= 14

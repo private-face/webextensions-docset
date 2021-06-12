@@ -8,6 +8,7 @@ const RE_UPPER_SNAKE_CASE = /^[A-Z][A-Z0-9_]*$/;
 const RE_CAMEL_CASE = /^[a-z][a-zA-Z0-9]*$/;
 const RE_EVENT = /^on[A-Z].*$/;
 const ACCEPTED_TAGS = new Set(['Property', 'Method', 'Type', 'Event', 'Constant']);
+const NO_DESCRIPTION_TYPES = new Set(['Module', 'Namespace', 'Guide', 'Section'])
 
 function inferTypeFromName(title) {
     const titleParts = title.split('.');
@@ -28,49 +29,48 @@ function inferTypeFromName(title) {
     return null;
 }
 
+function fixName(name, type) {
+    if (type === 'Method' && !name.endsWith('()')) {
+        name += '()';
+    }
+    if (type !== 'Method' && name.endsWith('()')) {
+        name = name.slice(0, -2);
+    }
+    return name;
+}
+
 function createAPIDocEntry({ title, slug, tags }, apiDocPath) {
     const isManifest = slug.includes('/manifest.json/');
     const isAPI = slug.includes('/API/');
     const titleParts = title.split('.');
     const name = titleParts.pop();
+    const namespace = slug.replace(/^.*\/API\//, '').split('/').slice(0, -1).join('.');
     const typeFromName = inferTypeFromName(name);
     const typesFromTags = tags.filter(tag => ACCEPTED_TAGS.has(tag));
     const typeFromTags = typesFromTags && typesFromTags[0];
 
     const isTopLevel = !!slug.match(/\/API\/[^/]+$/i);
     const invalidAPINAme = !!name.match(/[^a-z0-9_()]/i);
-    const isNamespace = isTopLevel && !invalidAPINAme;
-
-    if (isAPI && !isNamespace && !invalidAPINAme && titleParts.length === 0) {
-        // API title consists of a single word, but it is not a Namespace, i. e. we have properties or methods like `set()`, 'onCommand' at the top level.
-        // Let's fix their title by adding the proper namespace, inferred from the slug.
-        const inferredNamespace = slug.replace(/^.*\/API\//, '').split('/').slice(0, -1).join('.');
-        // console.warn(`Warning: ${typeFromName || typeFromTags} "${name}" does not belong to any namespace. Is it "${inferredNamespace}"?`);
-        title = `${inferredNamespace}.${name}`;
-    }
+    const isModule = isTopLevel && !invalidAPINAme;
 
     if (typesFromTags.length > 1) {
         console.warn(`Warning: ambiguous resource type for "${title}": "${typesFromTags}"`)
-    }
-
-    if (isManifest && titleParts > 0) {
-        console.warn(`Warning: nested manifest key "${title}"`);
     }
 
     let type;
 
     switch (true) {
         // All pages at the top level of "manifest.json" folder are 'Sections'
-        case isManifest:
+        case isManifest && !invalidAPINAme:
             type = 'Section';
             break;
         // All pages that are neither APIs nor manifest.json keys are 'Guides'
         case !isAPI:
             type = 'Guide';
             break;
-        // Top-level pages inside 'API' folder is a 'Namespace'
-        case isNamespace:
-            type = 'Namespace';
+        // Top-level pages inside 'API' folder is a 'Module'
+        case isModule:
+            type = 'Module';
             break;
         // Resources inside 'API' folder which are also 'Guides'
         case invalidAPINAme:
@@ -96,7 +96,10 @@ function createAPIDocEntry({ title, slug, tags }, apiDocPath) {
             type = 'Object';
     }
 
-    return [type, title, apiDocPath.replace(/.*\/(en-us)/i, '$1/docs')];
+
+    const description = NO_DESCRIPTION_TYPES.has(type) ? '' : namespace;
+
+    return [type, fixName(name, type), apiDocPath.replace(/.*\/(en-us)/i, '$1/docs'), description];
 }
 
 function buildIndex(apiDocs) {

@@ -78,7 +78,7 @@ function fixUrls(dom, filePath, documentsFolder) {
 
 function buildTableOfContents(dom, filePath) {
     const document = dom.window.document;
-    const isAPI = filePath.includes('/API/');
+    const isAPI = filePath.includes('/api/');
     const API_HEADERS = {
         'properties': 'Property',
         'methods': 'Method',
@@ -89,6 +89,7 @@ function buildTableOfContents(dom, filePath) {
         'functions': 'Method',
         'constants': 'Constant',
         'javascript api listing': 'Namespace',
+        'parameters': 'Parameter',
     };
 
     const createTOCEntry = (node, resourceName, entryName) => {
@@ -98,7 +99,7 @@ function buildTableOfContents(dom, filePath) {
         node.prepend(a);
     }
 
-    document.querySelectorAll('h2').forEach(node => {
+    document.querySelectorAll('h2, h3').forEach(node => {
         const entryName = node.textContent.trim();
         createTOCEntry(node, 'Section', entryName);
 
@@ -109,6 +110,10 @@ function buildTableOfContents(dom, filePath) {
         }
 
         node.nextSibling.querySelectorAll('dt').forEach(apiNode => {
+            if (apiNode.closest('dd')) {
+                // ignore nested entries
+                return;
+            }
             const text = apiNode.textContent.trim();
             const resourceType = inferTypeFromName(text);
             // Sometimes constants end up in a 'Propertes' section, fix that.

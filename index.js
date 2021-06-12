@@ -36,7 +36,7 @@ function generateSQL(apiDocs) {
         if (row === null) {
             return '';
         }
-        const [type, name, dir] = row;
+        const [type, name, dir, desc] = row;
 
         // check if file is accessible
         const filePath = path.resolve(__dirname, 'webextensions.docset/Contents/Resources/Documents/' + dir);
@@ -46,7 +46,7 @@ function generateSQL(apiDocs) {
             console.error(`Error: File "${filePath}" is inaccessible`);
             return '';
         }
-        return `INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES ('${name}', '${type}', '${dir}');\n`;
+        return `INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES ('${name}', '${type}', '${dir}#<dash_entry_titleDescription=${encodeURIComponent(desc || ' ')}>');\n`;
     }).join('');
     return sql;
 }
@@ -72,20 +72,23 @@ function main() {
     console.log('Building MDN docs...');
     execSync(`echo CONTENT_ROOT="${tempContentFolder}" > .env`, {
         cwd: mdnYariFolder,
-    }).toString();
+        stdio: ['pipe', 'ignore', 'pipe'],
+    });
 
     execSync(`yarn prepare-build`, {
         cwd: mdnYariFolder,
-    }).toString();
+        stdio: ['pipe', 'ignore', 'pipe'],
+    });
 
     execSync(`yarn build`, {
         cwd: mdnYariFolder,
-    }).toString();
+        stdio: ['pipe', 'ignore', 'pipe'],
+    });
 
     // Copy fixed MDN pages to Documents folder
     fs.copySync(builtPagesFolder, documentsFolder);
 
-    // Fix built MDN pages (remove scripts and fix static URLs)
+    // Fix built MDN pages (remove scripts, fix static URLs, build TOC and so forth)
     console.log('Post processing...')
     const filePaths = fastGlob.sync(path.resolve(documentsFolder, docsWebextensionsSubtree, '**/index.html'));
     postProcess(filePaths, documentsFolder);
@@ -107,6 +110,10 @@ function main() {
             db.close();
         });
     });
+
+    // 8. Archive
+    console.log('Packing...')
+    execSync(`tar --exclude='.DS_Store' -cvzf webextensions.tgz webextensions.docset`);
 
     console.log('Done!');
 }
