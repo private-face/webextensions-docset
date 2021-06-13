@@ -143,12 +143,6 @@ async function buildDocuments(
       path.join(outPath, "index.html"),
       renderDocHTML(builtDocument, document.url)
     );
-    fs.writeFileSync(
-      path.join(outPath, "index.json"),
-      // This is exploiting the fact that renderDocHTML has the side-effect of
-      // mutating the built document which makes this not great and refactor-worthy.
-      JSON.stringify({ doc: builtDocument })
-    );
     // There are some archived documents that, due to possible corruption or other
     // unknown reasons, don't have a list of contributors.
     if (document.metadata.contributors || !document.isArchive) {
@@ -160,24 +154,6 @@ async function buildDocuments(
             ? builtDocument.source.github_url.replace("/blob/", "/commits/")
             : null
         )
-      );
-    }
-    for (const { url, data } of bcdData) {
-      fs.writeFileSync(
-        path.join(outPath, path.basename(url)),
-        JSON.stringify(data, (key, value) => {
-          // The BCD data object contains a bunch of data we don't need in the
-          // React component that loads the `bcd.json` file and displays it.
-          // The `.releases` block contains information about browsers (e.g
-          // release dates) and that part has already been extracted and put
-          // next to each version number where appropriate.
-          if (key === "releases") {
-            return undefined;
-          }
-          // TODO: Instead of serializing with a exclusion, instead explicitly
-          // serialize exactly only the data that is needed.
-          return value;
-        })
       );
     }
 
