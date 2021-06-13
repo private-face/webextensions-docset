@@ -86,8 +86,10 @@ async function main() {
         stdio: ['pipe', 'ignore', 'pipe'],
     });
 
-    // Copy fixed MDN pages to Documents folder
-    fs.copySync(builtPagesFolder, documentsFolder);
+    // Copy built MDN pages to Documents folder
+    fs.copySync(builtPagesFolder + '/assets', documentsFolder + '/assets');
+    fs.copySync(builtPagesFolder + '/static', documentsFolder + '/static');
+    fs.copySync(builtPagesFolder + '/en-us/docs', documentsFolder + '/en-us/docs');
 
     // Fix built MDN pages (remove scripts, fix static URLs, build TOC and so forth)
     console.log('Post processing...')
@@ -119,7 +121,7 @@ async function main() {
 
     // Archive
     console.log('Packing...')
-    execSync(`tar --exclude='.DS_Store' -cvzf webextensions.tgz webextensions.docset`, { stdio: ['pipe', 'ignore', 'pipe'] });
+    execSync(`tar --exclude='.DS_Store' -cvzf WebExtensions.tgz webextensions.docset`, { stdio: ['pipe', 'ignore', 'pipe'] });
 
     console.log('Done!');
 }

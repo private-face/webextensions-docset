@@ -43,9 +43,9 @@ function createAPIDocEntry({ title, slug, tags }, apiDocPath) {
     const invalidAPINAme = !!name.match(/[^a-z0-9_()]/i);
     const isModule = isTopLevel && !invalidAPINAme;
 
-    if (typesFromTags.length > 1) {
-        console.warn(`Warning: ambiguous resource type for "${title}": "${typesFromTags}"`)
-    }
+    // if (typesFromTags.length > 1) {
+    //     console.warn(`Warning: ambiguous resource type for "${title}": "${typesFromTags}"`)
+    // }
 
     let type;
 
@@ -72,9 +72,9 @@ function createAPIDocEntry({ title, slug, tags }, apiDocPath) {
             break;
         // In all other cases type inferred from name seems to be more correct than from tags
         case typeFromName !== null:
-            if (typesFromTags.length && !typesFromTags.includes(typeFromName)) {
-                // console.warn(`Warning: Types do not match for "${title}": tags say "${typesFromTags}", inferred type is "${typeFromName}"`);
-            }
+            // if (typesFromTags.length && !typesFromTags.includes(typeFromName)) {
+            //     console.warn(`Warning: Types do not match for "${title}": tags say "${typesFromTags}", inferred type is "${typeFromName}"`);
+            // }
             type = typeFromName;
             break;
         // It is very unlikely we end up here, but type in tag is better than no type at all
@@ -88,7 +88,7 @@ function createAPIDocEntry({ title, slug, tags }, apiDocPath) {
 
     const description = NO_DESCRIPTION_TYPES.has(type) ? ' ' : namespace;
 
-    // remove trailing "()"" from method names
+    // remove trailing "()" from method names
     if (name.endsWith('()')) {
         name = name.slice(0, -2);
     }

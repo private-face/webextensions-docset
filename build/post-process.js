@@ -102,26 +102,33 @@ function buildTableOfContents(dom, filePath) {
 
     document.querySelectorAll('h1, h2, h3').forEach(node => {
         const entryName = node.textContent.trim();
+
+        // "Legend" section is not visible, don't add it
         if (entryName.toLowerCase() === 'legend') {
-            // "Legend" section is not visible
             return;
         }
         createTOCEntry(node, 'Section', entryName);
 
-        // we can extract more from an api or manifest key page
+        // Add Samples
+        if (entryName.toLowerCase().includes('example')) {
+            createTOCEntry(node, 'Sample', entryName);
+        }
+
+        // We can extract more from API or manifest key page
         const resourceName = API_HEADERS[entryName.toLowerCase()];
         if (!isAPI && !isManifest || !resourceName) {
             return;
         }
 
         node.nextSibling.querySelectorAll('dt').forEach(apiNode => {
-            if (apiNode.closest('dd')) {
+            const code = apiNode.querySelector('code');
+            if (!code || apiNode.closest('dd')) {
                 // ignore nested entries
                 return;
             }
-            const text = apiNode.textContent.trim().split('.').pop();
+            const text = code.textContent.trim().split('.').pop();
             const resourceType = inferTypeFromName(text);
-            // Sometimes constants end up in a 'Propertes' section, fix that.
+            // Sometimes constants end up in a 'Propertes' section, fix that
             createTOCEntry(apiNode, resourceType === 'Constant' ? 'Constant' : resourceName, text);
         });
     });
