@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:private-face/yari.git
 	branch = main
-	commit = 05786cb8b9dca6005c10779a3eae6734a70f02a1
-	parent = 11c9225d122a669ee9391f8e2da1f9413391a8b0
+	commit = 0ec0808eabb34bd50bf8f6a665168ce61b0b8992
+	parent = 272d3f4e3025ff271f75d71887834ec1849f9182
 	method = merge
 	cmdver = 0.4.3
