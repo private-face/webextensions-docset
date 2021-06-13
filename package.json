@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "node index.js"
+    "build": "node index.js",
+    "prepare": "cd mdn/yari && yarn install && cd -"
   },
   "author": "",
   "license": "MIT",
